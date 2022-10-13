@@ -16,7 +16,7 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - docker build -t ssh-php:8.1 --build-arg BASE_IMAGE=php:8.1 .
+      - docker build -t robvankeilegom/ssh-php:8.1 --build-arg BASE_IMAGE=php:8.1 .
 
   - name: Publish Docker container
     image: docker
