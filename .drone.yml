@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: Default
+name: PHP-8.1
 
 trigger:
   event:
@@ -31,6 +31,45 @@ steps:
     commands:
       - echo $DOCKER_PW | docker login --username $DOCKER_USER --password-stdin
       - docker push robvankeilegom/ssh-php:8.1
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
+---
+kind: pipeline
+name: PHP-8.2
+
+trigger:
+  event:
+    include:
+      - push
+  branch:
+    - master
+
+steps:
+  - name: Build Docker container
+    image: docker
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -t robvankeilegom/ssh-php:8.2 --build-arg BASE_IMAGE=php:8.2 .
+
+  - name: Publish Docker container
+    image: docker
+    environment:
+      DOCKER_USER:
+        from_secret: docker_username
+      DOCKER_PW:
+        from_secret: docker_password
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - echo $DOCKER_PW | docker login --username $DOCKER_USER --password-stdin
+      - docker push robvankeilegom/ssh-php:8.2
 
 volumes:
   - name: dockersock
